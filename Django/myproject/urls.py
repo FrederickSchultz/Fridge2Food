@@ -16,8 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from  fridge2food.views import *
+from fridge2food.views import *
 
 urlpatterns = [
-    path("admin/", admin.site.urls)
+    path("admin/", admin.site.urls),
+    path("recipes/<int:fridge_id>", RecipesWithIng.as_view(), name="Recipes from api")
 ]
