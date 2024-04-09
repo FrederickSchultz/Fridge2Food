@@ -19,6 +19,5 @@ from django.urls import path
 from  fridge2food.views import *
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path('searchRecipe/<str:searchTerm>/<int:num>', getRecpies().as_view(), name="Search Recipe")
+    path("admin/", admin.site.urls)
 ]
