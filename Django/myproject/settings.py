@@ -9,9 +9,8 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import json
 from pathlib import Path
-from fridge2food.apiKeys import *
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,7 +27,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-SPOON_API_KEY = SPOON_API_KEY
+keysfile = BASE_DIR / 'myproject/keys.json'
+with open(keysfile) as f:
+    KEYS = json.load(f)
+keys = lambda n: str(KEYS[n])
+
+SPOON_API_KEY = keys('SPOON_API_KEY')
+
 
 # Application definition
 

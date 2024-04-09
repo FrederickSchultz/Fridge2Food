@@ -20,5 +20,5 @@ class Fridge(models.Model):
 
 class FridgeIngredient(models.Model):
     fridge = models.ForeignKey(Fridge, on_delete=models.CASCADE)
-    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE,null=True)
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE, null=True)
     amount = models.CharField(max_length=50)

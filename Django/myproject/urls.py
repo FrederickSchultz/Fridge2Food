@@ -23,9 +23,10 @@ from  fridge2food.views import *
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("recipes/<int:fridge_id>", RecipesWithIng.as_view(), name="Recipes from api"),
-    path('Ingredient/', Ingredient.as_view(), name="Ingredient"),
-    path('Recipe/', Recipes.as_view(), name="Recipe"),
+    path("recipes", RecipesWithIng.as_view(), name="Recipes from api"),
+    path('Ingredient', IngredientView.as_view(), name="Ingredient"),
+    path('Recipe', Recipes.as_view(), name="Recipe"),
     path('Fridge/', Fridges.as_view(), name="Fridge"),
-    path('addIngredients/<int:amount>', FridgeIngredientView.as_view(), name="addIngredient")
+    path('fridgeIngredients/<int:fridge_id>', FridgeIngredientView.as_view(), name="addIngredient"),
+    path('Users', Users.as_view(), name="users")
 ]
