@@ -17,8 +17,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from fridge2food.views import *
+from django.urls import path, include
+from  fridge2food.views import *
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("recipes/<int:fridge_id>", RecipesWithIng.as_view(), name="Recipes from api")
+    path("recipes/<int:fridge_id>", RecipesWithIng.as_view(), name="Recipes from api"),
+    path('Ingredient/', Ingredient.as_view(), name="Ingredient"),
+    path('Recipe/', Recipes.as_view(), name="Recipe"),
+    path('Fridge/', Fridges.as_view(), name="Fridge"),
+    path('addIngredients/<int:amount>', FridgeIngredientView.as_view(), name="addIngredient")
 ]
