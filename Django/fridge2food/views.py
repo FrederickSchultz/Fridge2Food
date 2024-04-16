@@ -173,6 +173,13 @@ class FridgeIngredientView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
+    
+    def delete(self, request):
+        ing_id = request.GET.get("ingId")
+        if ing_id:
+            ingredient = Ingredient.objects.get(id=ing_id)
+            ingredient.delete()
+            return Response("successful")
 
 
 
