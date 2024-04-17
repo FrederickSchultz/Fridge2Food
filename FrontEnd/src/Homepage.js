@@ -79,7 +79,7 @@ class Homepage extends React.Component {
             <ul>
               {/* Replace anchor tag with Link */}
               <li><Link to="/login">Login</Link></li>
-              <li><a href="/my-fridge">My Fridge</a></li>
+              <li><Link to="/my-fridge">My Fridge</Link></li>
             </ul>
           </nav>
         </div>
