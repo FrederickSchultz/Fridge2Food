@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import './IngredientsManager.css'; // This will be our CSS file for styling
 import {Link, useSearchParams} from 'react-router-dom';
 import axios from "axios";
+import store from "./store";
 
 //const params = useParams();
 //const fridgeId = params.fridgeId;
@@ -10,8 +11,7 @@ function IngredientsManager() {
     const [ingredients, setIngredients] = useState([]);
     const [newIngredient, setNewIngredient] = useState('');
     const [newAmount, setNewAmount] = useState('');
-    const [params, setparams]  = useSearchParams()
-    const userid = params.get("userid")
+    const [userid, setUserId] = useState(-1)
     const result = [{
        "id":0,
        "ingredient":"Apple",
@@ -22,12 +22,13 @@ function IngredientsManager() {
     useEffect(() => {
         const fetchIngredients = async () => {
             try {
-                console.log(userid)
-                const usersR = await axios.get('http://localhost:8000/Users?userid=' + userid);
-                const ingR = await axios.get("http://localhost:8000/fridgeIngredients/" + usersR.data.fridgeId)
+                const userId = store.getState().auth.user.id
+                setUserId(userId)
+                const usersR = await axios.get(`${process.env.REACT_APP_API_URL}/Users?userid=` + userId);
+                const ingR = await axios.get(`${process.env.REACT_APP_API_URL}/fridgeIngredients/` + usersR.data.fridgeId)
                 const ingredientData = ingR.data
                 for (let i = 0; i < ingredientData.length; i++) {
-                    ingredientData[i].ingredient = (await axios.get("http://localhost:8000/Ingredient?ingId=" + ingredientData[i].ingredient)).data.name
+                    ingredientData[i].ingredient = (await axios.get(`${process.env.REACT_APP_API_URL}/Ingredient?ingId=` + ingredientData[i].ingredient)).data.name
                 }
                 console.log(ingredientData)
                 setUserData(usersR.data)

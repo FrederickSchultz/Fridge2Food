@@ -20,7 +20,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "rmdir ..\\Django\\build\\ /Q/S && react-scripts build && xcopy build ..\\Django\\build\\ /E/H",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

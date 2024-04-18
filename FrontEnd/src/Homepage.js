@@ -16,7 +16,7 @@ class Homepage extends React.Component {
   constructor(props) {
     super(props);
     // Code to load data from backend
-
+    console.log(this.props)
     //Get random images for carousel
         this.state = {
           carouselImages: [],
@@ -106,10 +106,8 @@ class Homepage extends React.Component {
 
     return (
       <div>
-        <div className="banner">
-          <NavPage />
-          
-        </div>
+        <NavPage />
+
 
         <div className="suggested-recipes">
           <h2>Suggested Recipes</h2>

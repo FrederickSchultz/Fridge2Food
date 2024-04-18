@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+from annoying.fields import AutoOneToOneField
 
 
 
@@ -43,7 +44,7 @@ class Recipe(models.Model):
 
 
 class Fridge(models.Model):
-    owner = models.OneToOneField(UserAccount, on_delete=models.CASCADE)
+    owner = AutoOneToOneField(UserAccount, on_delete=models.CASCADE)
 
 
 class FridgeIngredient(models.Model):

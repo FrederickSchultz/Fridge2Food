@@ -13,58 +13,48 @@ const NavPage = ({ logout, isAuthenticated }) => {
     };
 
     const guestLinks = () => (
-        <nav className="ribbon">
+
         <React.Fragment>
-            <li className='nav-item'>
-                <Link className='nav-link' to='/login'>Login</Link>
-            </li>
-            <li className='nav-item'>
-                <Link className='nav-link' to='/signup'>Sign Up</Link>
-            </li>
+            <ul>
+                <li>
+                    <Link className='nav-link' to='/login'>Login</Link>
+                </li>
+                <li>
+                    <Link className='nav-link' to='/signup'>Sign Up</Link>
+                </li>
+            </ul>
         </React.Fragment>
-        </nav>
+
     );
 
     const authLinks = () => (
-        <nav className="ribbon">
+
         <React.Fragment>
-            <li className='nav-item'>
-                <Link className='nav-link' to='/my-fridge'>My Fridge</Link>
-            </li>
-            <li className='nav-item'>
-                <a className='nav-link' href='#!' onClick={logout_user}>Logout</a>
-            </li>
+            <ul>
+                <li >
+                    <Link className='nav-link' to='/my-fridge'>My Fridge</Link>
+                </li>
+                <li >
+                    <a className='nav-link' href='#!' onClick={logout_user}>Logout</a>
+                </li>
+            </ul>
         </React.Fragment>
-        </nav>
     );
 
     return (
         <React.Fragment>
-            <nav className='navbar navbar-expand-lg navbar-light bg-light'>
-                <Link className='navbar-brand' to='/'>
-                    <img src="logo.png" alt="Logo" style={{ height: '50px' }} />
+            <div className='banner'>
+                <Link className='logo' to='/'>
+                    <img src="logo.png" alt="Logo" style={{height: '50px'}}/>
                 </Link>
-                <div className="navbar-header">
-                    <h1 className="title"><Link to={"/?userid=" + userid} className={"title"}>Fridge2Food</Link></h1>
-                </div>
-                <button 
-                    className='navbar-toggler' 
-                    type='button' 
-                    data-toggle='collapse' 
-                    data-target='#navbarNav' 
-                    aria-controls='navbarNav' 
-                    aria-expanded='false' 
-                    aria-label='Toggle navigation'
-                >
-                    <span className='navbar-toggler-icon'></span>
-                </button>
-                <div className='collapse navbar-collapse' id='navbarNav'>
-                    <ul className='navbar-nav ml-auto'>
-                        {isAuthenticated ? authLinks() : guestLinks()}
-                    </ul>
-                </div>
-            </nav>
-            {redirect && <Navigate to='/' />}
+                <h1 className="title"><Link to={"/?userid=" + userid} className={"title"}>Fridge2Food</Link></h1>
+                <nav className="ribbon">
+                    {isAuthenticated ? authLinks() : guestLinks()}
+                </nav>
+
+
+            </div>
+            {redirect && <Navigate to='/'/>}
         </React.Fragment>
     );
 };
@@ -73,4 +63,4 @@ const mapStateToProps = state => ({
     isAuthenticated: state.auth.isAuthenticated
 });
 
-export default connect(mapStateToProps, { logout })(NavPage);
+export default connect(mapStateToProps, {logout})(NavPage);
