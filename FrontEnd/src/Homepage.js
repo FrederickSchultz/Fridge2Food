@@ -3,11 +3,15 @@ import {Link} from 'react-router-dom'; // Import Link from react-router-dom
 import './App.css';
 import RecipeGrid from './RecipeGrid';
 import axios from "axios";
+import { checkAuthenticated, load_user } from './actions/auth';
+import { connect } from 'react-redux';
+import NavPage from './NavPage';
+
 
 
 class Homepage extends React.Component {
 
-
+  
 
   constructor(props) {
     super(props);
@@ -25,17 +29,21 @@ class Homepage extends React.Component {
 
   }
   componentDidMount(){
+    this.props.checkAuthenticated();
+    this.props.load_user();
     this.fetchData();
   }
 
-  fetchData = async() => {
-    const response = await axios.get(`${process.env.REACT_APP_API_URL}/recipes?random=True`)
-    const listRecipes = response.data
-    for (let i = 0; i < listRecipes.length; i++) {
-      listRecipes[i].favorited = false
-    }
-    this.setState({ carouselImages: response.data,
-                          recipes: listRecipes})
+  fetchData = async () => {
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/recipes?random=True`);
+    const listRecipes = response.data.map(recipe => ({
+      ...recipe,
+      favorited: false
+    }));
+    this.setState({
+      carouselImages: response.data,
+      recipes: listRecipes
+    });
   }
 
   handleHoverImage = (index) => {
@@ -99,22 +107,8 @@ class Homepage extends React.Component {
     return (
       <div>
         <div className="banner">
-          <div className="logo">
-            <img src="logo.png" alt="Logo" />
-          </div>
-          <h1 className="title">Fridge2Food</h1>
-          <nav className="ribbon">
-            <ul>
-              {/* Replace anchor tag with Link */}
-
-              {
-                (userId == null || userId < 0)?<li><Link to={"/Login?userid=" + userId}>Login</Link></li>:<li><Link to="/">logout</Link></li>
-              }
-              {
-                (userId != null || userId > 0)?<li><Link to={link}>My Fridge</Link></li>:<></>
-              }
-            </ul>
-          </nav>
+          <NavPage />
+          
         </div>
 
         <div className="suggested-recipes">
@@ -171,5 +165,9 @@ class Homepage extends React.Component {
     );
   }
 }
+const mapDispatchToProps = dispatch => ({
+  checkAuthenticated: () => dispatch(checkAuthenticated()),
+  load_user: () => dispatch(load_user())
+});
 
-export default Homepage;
+export default connect(null, mapDispatchToProps)(Homepage);

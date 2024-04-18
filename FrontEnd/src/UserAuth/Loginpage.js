@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import axios from "axios";
 import { login } from "../actions/auth";
 
-const Login = ({ login }) => {
+const Login = ({ login, isAuthenticated }) => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState("")
 
@@ -18,7 +18,9 @@ const Login = ({ login }) => {
       login(email, password);
   };
 
-
+  if (isAuthenticated) {
+    return <Navigate to='/' />
+  }
 
   return (
       <div>
@@ -61,8 +63,8 @@ const Login = ({ login }) => {
       </div>
   );
 };
-//const  mapStateToProps = state => ({
-  //is authenticated
-//})
+const  mapStateToProps = state => ({
+  isAuthenticated: state.auth.isAuthenticated
+})
 
-export default connect(null, { login })(Login);
+export default connect(mapStateToProps, { login })(Login);
