@@ -51,7 +51,8 @@ INSTALLED_APPS = [
     'fridge2food',
     'rest_framework',
     'djoser',
-    'corsheaders'
+    'corsheaders',
+    'annoying'
 
 ]
 

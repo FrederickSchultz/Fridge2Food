@@ -41,7 +41,7 @@ const ResetPassword = ({ reset_password }) => {
             </ul>
           </nav>
         </div>
-        <h2>Request Password Rese</h2>
+        <h2>Request Password Reset</h2>
         <form onSubmit={handleSubmit}>
           <input
               type="text"

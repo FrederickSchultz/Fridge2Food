@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {Link, Redirect, Navigate, useSearchParams} from 'react-router-dom';
 import { connect } from "react-redux";
 import axios from "axios";
-import { reset_password, reset_password_confirm } from "../actions/auth";
+import { reset_password_confirm } from "../actions/auth";
 
 const ResetPasswordConfirm = ({ match, reset_password }) => {
     const [new_password, setNewPassword] = useState('');
@@ -37,16 +37,16 @@ const ResetPasswordConfirm = ({ match, reset_password }) => {
               {/* Replace anchor tag with Link */}
 
               {
-                userid < 0 ? <li><Link to="/login">Login</Link></li> : <li><Link to="/">logout</Link></li>
+             //   userid < 0 ? <li><Link to="/login">Login</Link></li> : <li><Link to="/">logout</Link></li>
               }
             </ul>
           </nav>
         </div>
-        <h2>Request Password Rese</h2>
+        <h2>Request Password Reset</h2>
         <form onSubmit={handleSubmit}>
           <input
               type="password"
-              placeholder="Password"
+              placeholder="New Password"
               defaultValue={new_password}
               onChange={e => setNewPassword(e.target.value)}
               minLength='6'
@@ -54,7 +54,7 @@ const ResetPasswordConfirm = ({ match, reset_password }) => {
           />
           <input
               type="password"
-              placeholder="Confrim New Password"
+              placeholder="Confirm New Password"
               defaultValue={re_new_password}
               onChange={e => setReNewPassword(e.target.value)}
               minLength='6'
