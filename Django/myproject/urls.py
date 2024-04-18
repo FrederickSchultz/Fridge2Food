@@ -15,14 +15,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from fridge2food.views import *
-from django.urls import path, include
+from django.urls import path, include, re_path
 from  fridge2food.views import *
+from django.views.generic import TemplateView
 
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.jwt')),
     path("recipes", RecipesWithIng.as_view(), name="Recipes from api"),
     path('Ingredient', IngredientView.as_view(), name="Ingredient"),
     path('Recipe', Recipes.as_view(), name="Recipe"),
@@ -30,3 +31,4 @@ urlpatterns = [
     path('fridgeIngredients/<int:fridge_id>', FridgeIngredientView.as_view(), name="addIngredient"),
     path('Users', Users.as_view(), name="users")
 ]
+urlpatterns += [re_path(r'^.*', TemplateView.as_view(template_name="index.html"))]

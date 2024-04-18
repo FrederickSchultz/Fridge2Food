@@ -7,6 +7,9 @@ from django.conf import settings
 import json
 from .models import *
 from .serializers import *
+import os
+
+
 # Create your views here.
 
 spoonApiKey = settings.SPOON_API_KEY
@@ -17,7 +20,14 @@ class RecipesWithIng(APIView):
         fridge_id = int(request.GET.get('fridgeId', -1))
         if random:
             headers = {'x-api-key': spoonApiKey}
-            randomRecipes = json.loads(r.get('https://api.spoonacular.com/recipes/random?number=10', headers=headers).text)
+            #randomRecipes = json.loads(r.get('https://api.spoonacular.com/recipes/random?number=10', headers=headers).text)
+            #json_recipes = json.dumps(randomRecipes, indent=4)
+            #with open("randomRecipes.json", "w") as outfile:
+                #outfile.write(json_recipes)
+
+            file_ = open(os.path.join(settings.PROJECT_ROOT, 'randomRecipes.json'))
+            randomRecipes = json.load(file_)
+            file_.close()
             output = [{
                 'recipe_Id': recipe["id"],
                 'image': recipe["image"],
@@ -63,35 +73,32 @@ class RecipesWithIng(APIView):
 
 class Users(APIView):
     def get(self, request):
+        userid = int(request.GET.get("userid", -1))
+        if userid > 0:
+            user = User.objects.get(id=userid)
+            serializer = UserSerializer(user, many=False)
+            returnData = serializer.data
+            returnData["saved_recipes"] = [recipe.id for recipe in user.saved_recipes.all()]
+            returnData["fridgeId"] = user.fridge.id
+            return Response(returnData)
         user = User.objects.all()
         serializer = UserSerializer(user, many=True)
         return Response(serializer.data)
 
-    def update(self, request, userid):
-        user = User.objects.get(id=userid)
-        data = request.data
-        print("made it")
-        if user is not None:
-            for key in data.keys():
-                if key == 'password':
-                    user.password = data[key]
-                if key == 'username':
-                    user.username = data[key]
-                if key == 'first_name':
-                    user.first_name = data[key]
-                if key == 'last_name':
-                    user.last_name = data[key]
-                if key == 'email':
-                    user.email = data[key]
-
-            user.save()
-            serializer = UserSerializer(user, many=False)
-            return Response(serializer.data)
-    def post(self, request):
+    def put(self, request):
         userid = int(request.GET.get("userid", -1))
-        print(userid)
         if userid > 0:
-            return self.update(request, userid)
+            user = User.objects.get(id=userid)
+            data = request.data
+            if user is not None:
+                serializer = UserSerializer(user, data=data, partial=True)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data)
+
+        return Response("No User ID provided")
+
+    def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -128,9 +135,14 @@ class Recipes(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = RecipeSerializer(data=request.data)
+        data = request.data
+        userIndex = data.pop("users")
+        serializer = RecipeSerializer(data=data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
+            recipe = Recipe.objects.get(id=serializer.data["id"])
+            recipe.users.add(User.objects.get(id=userIndex))
+            recipe.save()
             return Response(serializer.data)
         
 
@@ -163,8 +175,9 @@ class FridgeIngredientView(APIView):
             return Response(serializer.data)
 
 
-    def update(self, request, fridge_id, pk):
+    def put(self, request, fridge_id):
         try:
+            pk = int(request.GET.get("fIngId", -1))
             fridge_ingredient = FridgeIngredient.objects.get(pk=pk, fridge__id=fridge_id)
         except FridgeIngredient.DoesNotExist:
             return Response({'error': 'FridgeIngredient not found.'})
@@ -174,11 +187,13 @@ class FridgeIngredientView(APIView):
             serializer.save()
             return Response(serializer.data)
     
-    def delete(self, request):
-        ing_id = request.GET.get("ingId")
-        if ing_id:
-            ingredient = Ingredient.objects.get(id=ing_id)
-            ingredient.delete()
+    def delete(self, request, fridge_id):
+        pk = int(request.GET.get("fIngId"))
+        if pk:
+            print([fid.id for fid in FridgeIngredient.objects.all()])
+            fridge_ingredient = FridgeIngredient.objects.get(id=pk)
+
+            fridge_ingredient.delete()
             return Response("successful")
 
 
