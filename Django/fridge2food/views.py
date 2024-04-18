@@ -75,20 +75,20 @@ class Users(APIView):
     def get(self, request):
         userid = int(request.GET.get("userid", -1))
         if userid > 0:
-            user = User.objects.get(id=userid)
+            user = UserAccount.objects.get(id=userid)
             serializer = UserSerializer(user, many=False)
             returnData = serializer.data
             returnData["saved_recipes"] = [recipe.id for recipe in user.saved_recipes.all()]
             returnData["fridgeId"] = user.fridge.id
             return Response(returnData)
-        user = User.objects.all()
+        user = UserAccount.objects.all()
         serializer = UserSerializer(user, many=True)
         return Response(serializer.data)
 
     def put(self, request):
         userid = int(request.GET.get("userid", -1))
         if userid > 0:
-            user = User.objects.get(id=userid)
+            user = UserAccount.objects.get(id=userid)
             data = request.data
             if user is not None:
                 serializer = UserSerializer(user, data=data, partial=True)
@@ -141,7 +141,7 @@ class Recipes(APIView):
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             recipe = Recipe.objects.get(id=serializer.data["id"])
-            recipe.users.add(User.objects.get(id=userIndex))
+            recipe.users.add(UserAccount.objects.get(id=userIndex))
             recipe.save()
             return Response(serializer.data)
         

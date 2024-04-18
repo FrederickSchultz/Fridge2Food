@@ -1,11 +1,24 @@
 from rest_framework import serializers
 from .models import Ingredient, Recipe, Fridge, FridgeIngredient
-from django.contrib.auth.models import User
+from djoser.serializers import UserCreateSerializer
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+class UserCreateSerializer(UserCreateSerializer):
+    class Meta(UserCreateSerializer.Meta):
+        model = User
+        fields = ('id', 'email', 'name', 'password')
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = "__all__"
+        fields = '__all__'
+    def create(self, validated_data):
+        user = User.objects.create(**validated_data)
+        fridge = Fridge.objects.create(owner_id=user.id)
+        fridge.save()
+        return user
 
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:

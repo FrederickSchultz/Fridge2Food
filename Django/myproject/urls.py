@@ -31,4 +31,3 @@ urlpatterns = [
     path('fridgeIngredients/<int:fridge_id>', FridgeIngredientView.as_view(), name="addIngredient"),
     path('Users', Users.as_view(), name="users")
 ]
-urlpatterns += [re_path(r'^.*', TemplateView.as_view(template_name="index.html"))]

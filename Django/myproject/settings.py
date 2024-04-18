@@ -49,8 +49,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'fridge2food',
     'rest_framework',
-    'corsheaders',
-    'djoser'
+    'djoser',
+    'corsheaders'
+
 ]
 
 MIDDLEWARE = [
@@ -67,7 +68,9 @@ MIDDLEWARE = [
 ROOT_URLCONF = "myproject.urls"
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.AllowAny'],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny'
+    ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -132,15 +135,21 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 DJOSER = {
-    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
-    'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}',
-    'ACTIVATION_URL': '#/activate/{uid}/{token}',
+    'LOGIN_FIELD': "email",
+    'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
+    'USERNAME_RESET_CONFIRM_URL': 'username/reset/confirm/{uid}/{token}',
+    'ACTIVATION_URL': 'activate/{uid}/{token}',
     'SEND_ACTIVATION_EMAIL': True,
     'USER_CREATE_PASSWORD_RETYPE': True,
     'USERNAME_CHANGED_EMAIL_CONFORMATION': True,
     'PASSWORD_CHANGED_EMAIL_CONFORMATION': True,
+    'SEND_CONFIRMATION_EMAIL': True,
     'SET_PASSWORD_RETYPE': True,
-    'SERIALIZERS': {},
+    'SERIALIZERS': {
+        'user_create': 'fridge2food.serializers.UserCreateSerializer',
+        'user': 'fridge2food.serializers.UserCreateSerializer',
+        'user_delete': 'djoser.serializers.UserDeleteSerializer',
+    },
 }
 
 
@@ -159,7 +168,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'build/static')
 ]
@@ -170,7 +179,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-AUTH_USER_MODEL = 'fridge2food.User'
+AUTH_USER_MODEL = 'fridge2food.UserAccount'
 
 # email: fridge2food.site@gmail.com
 # password: prxt omlx vklb ijmm

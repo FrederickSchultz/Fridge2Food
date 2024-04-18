@@ -29,7 +29,7 @@ class Homepage extends React.Component {
   }
 
   fetchData = async() => {
-    const response = await axios.get("http://localhost:8000/recipes?random=True")
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/recipes?random=True`)
     const listRecipes = response.data
     for (let i = 0; i < listRecipes.length; i++) {
       listRecipes[i].favorited = false
@@ -76,7 +76,7 @@ class Homepage extends React.Component {
         "image":updatedRecipes[index].image,
         "total_time":0
       }
-      axios.post("http://localhost:8000/Recipe", savedRecipe).then(res => {
+      axios.post(`${process.env.REACT_APP_API_URL}/Recipe`, savedRecipe).then(res => {
         console.log(res)
       })
 

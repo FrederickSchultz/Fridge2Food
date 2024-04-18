@@ -1,30 +1,33 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser, PermissionsMixin, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 
 
 
-class UserManager(BaseUserManager):
-    def create_user(self, username, email, first_name="", last_name="", password=None):
-        if not email or not username:
+class UserAccountManager(BaseUserManager):
+    def create_user(self, email, name, password=None):
+        if not email:
             raise ValueError("Users must have Email and Username")
 
         email = self.normalize_email(email)
-        user = self.model(username=username, email=email, first_name=first_name, last_name=last_name)
+        user = self.model(email=email, name=name)
 
         user.set_password(password)
         user.save()
         return user
 
 
-class User(AbstractUser, PermissionsMixin):
-    username = models.CharField(max_length=255)
+class UserAccount(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255, unique=True)
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
+    objects = UserAccountManager()
 
-    objects = UserManager()
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["name"]
+
+
 
 
 class Ingredient(models.Model):
@@ -33,14 +36,14 @@ class Ingredient(models.Model):
 class Recipe(models.Model):
     recipeID = models.IntegerField(null=True)
     url = models.CharField(max_length=200, default='ph.com')
-    users = models.ManyToManyField(User, related_name='saved_recipes')
+    users = models.ManyToManyField(UserAccount, related_name='saved_recipes')
     name = models.CharField(max_length=200)
     image = models.URLField(null=True, blank=True)
     total_time = models.FloatField(null=True, blank=True)
 
 
 class Fridge(models.Model):
-    owner = models.OneToOneField(User, on_delete=models.CASCADE)
+    owner = models.OneToOneField(UserAccount, on_delete=models.CASCADE)
 
 
 class FridgeIngredient(models.Model):
