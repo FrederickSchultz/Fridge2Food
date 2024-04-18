@@ -57,6 +57,7 @@
   font-size: 36px; /* Increase font size for better visibility */
   font-weight: bold; /* Make the title bold */
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Add text shadow for better contrast */
+  text-decoration: none;
 }
 
 .ribbon {

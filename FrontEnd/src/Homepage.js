@@ -1,33 +1,41 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // Import Link from react-router-dom
+import {Link} from 'react-router-dom'; // Import Link from react-router-dom
 import './App.css';
 import RecipeGrid from './RecipeGrid';
-import example1 from './example1.jpg';
-import example2 from './example2.jpg';
-import example3 from './example3.jpg';
-import example4 from './example4.jpg';
+import axios from "axios";
+
 
 class Homepage extends React.Component {
+
+
+
   constructor(props) {
     super(props);
-    this.state = {
-      carouselImages: [
-        { src: example1, name: 'Dish 1', cookTime: '30 minutes', calories: '200', link: 'https://www.allrecipes.com/recipe/81108/classic-macaroni-salad/' },
-        { src: example2, name: 'Dish 2', cookTime: '40 minutes', calories: '250', link: 'https://www.allrecipes.com/recipe/150637/better-baked-beans/' },
-        { src: example3, name: 'Dish 3', cookTime: '25 minutes', calories: '180', link: 'https://www.allrecipes.com/recipe/142027/sweet-restaurant-slaw/' },
-        { src: example4, name: 'Dish 4', cookTime: '35 minutes', calories: '220', link: 'https://www.allrecipes.com/recipe/92462/slow-cooker-texas-pulled-pork/' },
-      ],
-      hoveredImageIndex: null,
-      recipes: [
-        { name: 'Recipe 1', cookTime: '45 minutes', calories: '300', image: 'recipe1.jpg', canMake: false, favorited: false },
-        { name: 'Recipe 2', cookTime: '35 minutes', calories: '250', image: 'recipe2.jpg', canMake: true, favorited: true },
-        { name: 'Recipe 3', cookTime: '60 minutes', calories: '400', image: 'recipe3.jpg', canMake: true, favorited: false },
-        { name: 'Recipe 4', cookTime: '20 minutes', calories: '180', image: 'recipe4.jpg', canMake: false, favorited: true },
-      ],
-      searchQuery: '',
-      showCanMakeOnly: false,
-      showFavoritedOnly: false
-    };
+    // Code to load data from backend
+
+    //Get random images for carousel
+        this.state = {
+          carouselImages: [],
+          hoveredImageIndex: null,
+          recipes: [],
+          searchQuery: '',
+          showCanMakeOnly: false,
+          showFavoritedOnly: false
+        }
+
+  }
+  componentDidMount(){
+    this.fetchData();
+  }
+
+  fetchData = async() => {
+    const response = await axios.get("http://localhost:8000/recipes?random=True")
+    const listRecipes = response.data
+    for (let i = 0; i < listRecipes.length; i++) {
+      listRecipes[i].favorited = false
+    }
+    this.setState({ carouselImages: response.data,
+                          recipes: listRecipes})
   }
 
   handleHoverImage = (index) => {
@@ -51,8 +59,27 @@ class Homepage extends React.Component {
   }
 
   handleToggleFavorite = (index) => {
+    const queryParameters = new URLSearchParams(window.location.search)
+    const userId = queryParameters.get("userid")
+    console.log(userId)
     this.setState(prevState => {
       const updatedRecipes = [...prevState.recipes];
+      if (userId < 0) {
+        alert("Login to Favorite Recipes")
+        return { recipes: updatedRecipes };
+      }
+      const savedRecipe = {
+        "recipeID":updatedRecipes[index].recipe_Id,
+        "url":updatedRecipes[index].url,
+        "users":userId,
+        "name":updatedRecipes[index].name,
+        "image":updatedRecipes[index].image,
+        "total_time":0
+      }
+      axios.post("http://localhost:8000/Recipe", savedRecipe).then(res => {
+        console.log(res)
+      })
+
       updatedRecipes[index].favorited = !updatedRecipes[index].favorited;
       return { recipes: updatedRecipes };
     });
@@ -60,11 +87,12 @@ class Homepage extends React.Component {
 
   render() {
     const { carouselImages, hoveredImageIndex, recipes, searchQuery, showCanMakeOnly, showFavoritedOnly } = this.state;
-
+    const queryParameters = new URLSearchParams(window.location.search)
+    const userId = queryParameters.get("userid")
+    const link = '/my-fridge?userid=' + userId;
     // Filter recipes based on search query and checkboxes
     const filteredRecipes = recipes.filter(recipe =>
       (recipe.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      (!showCanMakeOnly || recipe.canMake) &&
       (!showFavoritedOnly || recipe.favorited)
     );
 
@@ -78,8 +106,13 @@ class Homepage extends React.Component {
           <nav className="ribbon">
             <ul>
               {/* Replace anchor tag with Link */}
-              <li><Link to="/login">Login</Link></li>
-              <li><Link to="/my-fridge">My Fridge</Link></li>
+
+              {
+                (userId == null || userId < 0)?<li><Link to={"/Login?userid=" + userId}>Login</Link></li>:<li><Link to="/">logout</Link></li>
+              }
+              {
+                (userId != null || userId > 0)?<li><Link to={link}>My Fridge</Link></li>:<></>
+              }
             </ul>
           </nav>
         </div>
@@ -89,14 +122,14 @@ class Homepage extends React.Component {
           <div className="carousel">
             <div className="carousel-inner">
               {carouselImages.map((imageData, index) => (
-                <a key={index} href={imageData.link} className="image-link">
+                <a key={index} href={imageData.url} className="image-link">
                   <div
                     className="image-container"
                     onMouseEnter={() => this.handleHoverImage(index)}
                     onMouseLeave={() => this.handleHoverImage(null)}
                   >
                     <img
-                      src={imageData.src}
+                      src={imageData.image}
                       alt={imageData.name}
                       className={index === hoveredImageIndex ? 'center grow' : ''}
                     />
@@ -104,8 +137,6 @@ class Homepage extends React.Component {
                       <div className="overlay">
                         <div className="text">
                           <p>{imageData.name}</p>
-                          <p>Cook Time: {imageData.cookTime}</p>
-                          <p>Calories: {imageData.calories}</p>
                         </div>
                       </div>
                     )}
