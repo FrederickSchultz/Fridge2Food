@@ -33,6 +33,10 @@ class RecipeSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = '__all__'
 
+    def create(self, validated_data):
+        recipe, created = Recipe.objects.get_or_create(**validated_data)
+        return recipe
+
 class FridgeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Fridge

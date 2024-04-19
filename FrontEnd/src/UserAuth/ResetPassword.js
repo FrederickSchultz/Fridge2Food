@@ -3,6 +3,7 @@ import {Link, Redirect, Navigate, useSearchParams} from 'react-router-dom';
 import { connect } from "react-redux";
 import axios from "axios";
 import { reset_password } from "../actions/auth";
+import NavPage from "../NavPage";
 
 const ResetPassword = ({ reset_password }) => {
     const [email, setEmail] = useState('')
@@ -26,21 +27,7 @@ const ResetPassword = ({ reset_password }) => {
 
   return (
       <div>
-        <div className="banner">
-          <div className="logo">
-            <img src="logo.png" alt="Logo"></img>
-          </div>
-          <h1 className="title"><Link to={"/?userid=" + userid} className={"title"}>Fridge2Food</Link></h1>
-          <nav className="ribbon">
-            <ul>
-              {/* Replace anchor tag with Link */}
-
-              {
-                userid < 0 ? <li><Link to="/login">Login</Link></li> : <li><Link to="/">logout</Link></li>
-              }
-            </ul>
-          </nav>
-        </div>
+        <NavPage />
         <h2>Request Password Rese</h2>
         <form onSubmit={handleSubmit}>
           <input

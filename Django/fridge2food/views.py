@@ -128,7 +128,7 @@ class Recipes(APIView):
         recipe_id = int(request.GET.get("recipeId", -1))
         if recipe_id > 0:
             recipe = Recipe.objects.get(id=recipe_id)
-            serializer = IngredientSerializer(recipe, many=False)
+            serializer = RecipeSerializer(recipe, many=False)
             return Response(serializer.data)
         recipes = Recipe.objects.all()
         serializer = RecipeSerializer(recipes, many=True)
@@ -138,6 +138,7 @@ class Recipes(APIView):
         data = request.data
         userIndex = data.pop("users")
         serializer = RecipeSerializer(data=data, partial=True)
+        print(data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             recipe = Recipe.objects.get(id=serializer.data["id"])
