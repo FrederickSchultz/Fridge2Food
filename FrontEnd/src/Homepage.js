@@ -175,6 +175,7 @@ class Homepage extends React.Component {
 
         <div className="suggested-recipes">
           <h2>Suggested Recipes</h2>
+          <div className="recipe-scroll-container">
           <div className="carousel">
             <div className="carousel-inner">
               {carouselImages.map((imageData, index) => (
@@ -200,6 +201,7 @@ class Homepage extends React.Component {
                   </a>
               ))}
             </div>
+          </div>
           </div>
         </div>
 
