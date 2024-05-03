@@ -8,6 +8,7 @@ import json
 from .models import *
 from .serializers import *
 import os
+from rest_framework.decorators import api_view
 
 
 # Create your views here.
@@ -145,7 +146,7 @@ class Recipes(APIView):
             recipe.users.add(UserAccount.objects.get(id=userIndex))
             recipe.save()
             return Response(serializer.data)
-        
+    
 
 class Fridges(APIView):
     def get(self, request):

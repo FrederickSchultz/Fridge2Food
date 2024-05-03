@@ -9,12 +9,17 @@ const RecipeGrid = ({ recipes, onToggleFavorite }) => {
             <tbody>
               <tr>
                 <td className="recipe-title" colSpan="2">{recipe.name}</td>
+                <button className={`favorite-button ${recipe.favorited ? 'favorited' : ''}`} onClick={() => onToggleFavorite(index)}>
+                      {recipe.favorited ? '★' : '☆'}
+                  </button>
               </tr>
               <tr>
                 <td className="recipe-info">
                 </td>
+                
                 <td className="recipe-image">
                   <img src={recipe.image} alt={recipe.name} />
+                
                 </td>
               </tr>
               <tr>

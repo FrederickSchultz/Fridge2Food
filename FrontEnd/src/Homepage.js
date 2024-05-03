@@ -58,36 +58,43 @@ class Homepage extends React.Component {
     this.setState({ searchQuery: event.target.value });
   }
 
-  handleCanMakeChange = async () => {
-    const showCanMakeOnly =  !this.state.showCanMakeOnly
-    const state = store.getState()
-    let userId = -1
-    if(state.auth.user){
-      userId = state.auth.user.id
-    }else{
-      alert("login to show Recipes you can make")
-      return
-    }
-    if(showCanMakeOnly) {
-      const user = (await axios.get(`${process.env.REACT_APP_API_URL}/Users?userid=${userId}`)).data
-      const recipes = (await axios.get(`${process.env.REACT_APP_API_URL}/recipes?fridgeId=${user.fridgeId}`)).data
-      const listRecipes = recipes.map(recipe => ({
-        ...recipe,
-        favorited: false
-      }));
-      console.log(listRecipes)
-      this.setState(prevState => ({
-        recipes: listRecipes,
-      }));
+ handleCanMakeChange = async () => {
+    const showCanMakeOnly = !this.state.showCanMakeOnly;
+    this.setState({ showCanMakeOnly }); // Update state early to toggle the checkbox state
 
+    if (showCanMakeOnly) {
+        const state = store.getState();
+        let userId = -1;
+        if (state.auth.user) {
+            userId = state.auth.user.id;
+        } else {
+            alert("Please login to show recipes you can make.");
+            return;
+        }
 
-    }else {
-      await this.fetchData()
+        try {
+            const user = (await axios.get(`${process.env.REACT_APP_API_URL}/Users?userid=${userId}`)).data;
+            if (!user.fridgeId) {
+                alert("No fridge information found.");
+                return;
+            }
+
+            const recipes = (await axios.get(`${process.env.REACT_APP_API_URL}/recipes?fridgeId=${user.fridgeId}`)).data;
+            const listRecipes = recipes.map(recipe => ({
+                ...recipe,
+                favorited: false // Adjust according to your logic for checking if a recipe is favorited
+            }));
+
+            this.setState({ recipes: listRecipes });
+        } catch (error) {
+            console.error("Failed to fetch recipes based on fridge contents:", error);
+            alert("Failed to load recipes you can make.");
+        }
+    } else {
+        await this.fetchData(); // Reset to all recipes when unchecked
     }
-    this.setState(prevState => ({
-      showCanMakeOnly: !prevState.showCanMakeOnly
-    }));
-  }
+}
+
 
   handleFavoritedChange = async () => {
     const showFavoritedOnly = !this.state.showFavoritedOnly
@@ -128,7 +135,7 @@ class Homepage extends React.Component {
     }));
   }
 
-  handleToggleFavorite = (index) => {
+handleToggleFavorite = (index) => {
     const state = store.getState()
     let userId = -1
     if(state.auth.user){
@@ -156,6 +163,8 @@ class Homepage extends React.Component {
       return { recipes: updatedRecipes };
     });
   }
+
+
 
   render() {
     const { carouselImages, hoveredImageIndex, recipes, searchQuery, showCanMakeOnly, showFavoritedOnly } = this.state;
