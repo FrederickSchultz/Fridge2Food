@@ -153,10 +153,14 @@ class Homepage extends React.Component {
         return { recipes: updatedRecipes };
       }
       if(updatedRecipes[index].favorited === true){
-        
+        axios.delete(`${process.env.REACT_APP_API_URL}/Recipe?recipeId=${updatedRecipes[index].recipeID}&userId=${userId}`).then(res => {
+          console.log(res)
+        })
+        updatedRecipes.splice(index, 1)
+        return {recipes: updatedRecipes}
       }
       const savedRecipe = {
-        "recipeID":updatedRecipes[index].recipe_Id,
+        "recipeID":updatedRecipes[index].recipeID,
         "url":updatedRecipes[index].url,
         "users":userId,
         "name":updatedRecipes[index].name,

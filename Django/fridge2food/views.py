@@ -92,7 +92,7 @@ class RecipesWithIng(APIView):
                             searchQuery, Ingparam), headers=headers).text)
             if not searchedRecipies is None:
                 output = [{
-                    'recipe_Id': recipe["id"],
+                    'recipeID': recipe["id"],
                     'image': recipe["image"],
                     'name': recipe["title"],
                     'url': recipe["sourceUrl"]
@@ -179,10 +179,12 @@ class Recipes(APIView):
             recipe.save()
             return Response(serializer.data)
     def delete(self, request):
-        data = request.data
-        recipe = Recipe.objects.get(recipeID=data["recipe_Id"])
+        recipe_id = int(request.GET.get("recipeId", -1))
+        userId = int(request.GET.get("userId", -1))
+        recipe = Recipe.objects.get(recipeID=recipe_id)
         if recipe:
-            recipe.delete()
+            recipe.users.remove(User.objects.get(id=userId))
+            recipe.save()
             return Response("Successfull")
         return Response("Couldnt Find recipe")
 
