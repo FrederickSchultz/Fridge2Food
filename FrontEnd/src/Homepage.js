@@ -6,7 +6,7 @@ import axios from "axios";
 import { checkAuthenticated, load_user } from './actions/auth';
 import { connect } from 'react-redux';
 import NavPage from './NavPage';
-import { Carousel, Layout, Flex } from "antd"
+import {Carousel, Layout, Flex, Button, Space} from "antd"
 import store from "./store";
 
 const {Header, Content} = Layout
@@ -128,7 +128,19 @@ class Homepage extends React.Component {
     }));
   }
 
-  handleToggleFavorite = (index) => {
+  handleSearch = async () => {
+    const recipes = (await axios.get(`${process.env.REACT_APP_API_URL}/recipes?searchQuery=${this.state.searchQuery}`)).data
+    const listRecipes = recipes.map(recipe => ({
+      ...recipe,
+      favorited: false
+    }));
+    console.log(listRecipes)
+    this.setState(prevState => ({
+      recipes: listRecipes,
+    }));
+  }
+
+  handleToggleFavorite = async (index) => {
     const state = store.getState()
     let userId = -1
     if(state.auth.user){
@@ -139,6 +151,9 @@ class Homepage extends React.Component {
       if (userId < 0) {
         alert("Login to Favorite Recipes")
         return { recipes: updatedRecipes };
+      }
+      if(updatedRecipes[index].favorited === true){
+        
       }
       const savedRecipe = {
         "recipeID":updatedRecipes[index].recipe_Id,
@@ -164,7 +179,6 @@ class Homepage extends React.Component {
     const link = '/my-fridge?userid=' + userId;
     // Filter recipes based on search query and checkboxes
     const filteredRecipes = recipes.filter(recipe =>
-      (recipe.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
       (!showFavoritedOnly || recipe.favorited)
     );
 
@@ -207,14 +221,19 @@ class Homepage extends React.Component {
           <h2>Search Recipes</h2>
           <div className="search-container">
             <input type="text" placeholder="Search..." value={searchQuery} onChange={this.handleSearchChange}/>
-            <label>
-              <input type="checkbox" checked={showCanMakeOnly} onChange={this.handleCanMakeChange}/>
-              Only show recipes I can make
-            </label>
-            <label>
-              <input type="checkbox" checked={showFavoritedOnly} onChange={this.handleFavoritedChange}/>
-              Only show favorited recipes
-            </label>
+            <Space>
+              <label>
+                <input type="checkbox" checked={showCanMakeOnly} onChange={this.handleCanMakeChange}/>
+                Only show recipes I can make
+              </label>
+              <label>
+                <input type="checkbox" checked={showFavoritedOnly} onChange={this.handleFavoritedChange}/>
+                Only show favorited recipes
+              </label>
+              <label>
+                <Button onClick={this.handleSearch}>Search</Button>
+              </label>
+            </Space>
           </div>
         </div>
 

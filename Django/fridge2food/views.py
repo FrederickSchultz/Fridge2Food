@@ -9,21 +9,22 @@ from .models import *
 from .serializers import *
 import os
 
-
 # Create your views here.
 
 spoonApiKey = settings.SPOON_API_KEY
+
 
 class RecipesWithIng(APIView):
     def get(self, request):
         random = request.GET.get('random', False)
         fridge_id = int(request.GET.get('fridgeId', -1))
+        searchQuery = request.GET.get('searchQuery', "")
         if random:
             headers = {'x-api-key': spoonApiKey}
-            #randomRecipes = json.loads(r.get('https://api.spoonacular.com/recipes/random?number=10', headers=headers).text)
-            #json_recipes = json.dumps(randomRecipes, indent=4)
-            #with open("randomRecipes.json", "w") as outfile:
-                #outfile.write(json_recipes)
+            # randomRecipes = json.loads(r.get('https://api.spoonacular.com/recipes/random?number=10', headers=headers).text)
+            # json_recipes = json.dumps(randomRecipes, indent=4)
+            # with open("randomRecipes.json", "w") as outfile:
+            # outfile.write(json_recipes)
 
             file_ = open(os.path.join(settings.PROJECT_ROOT, 'randomRecipes.json'))
             randomRecipes = json.load(file_)
@@ -38,7 +39,7 @@ class RecipesWithIng(APIView):
 
             return Response(output)
 
-        if fridge_id > 0:
+        if fridge_id > 0 and searchQuery == "":
             fridge = Fridge.objects.get(id=fridge_id)
             if fridge is not None:
                 fridgeIngredents = []
@@ -47,7 +48,9 @@ class RecipesWithIng(APIView):
                     fridgeIngredents.append(name)
                 Ingparam = ",+".join(fridgeIngredents)
                 headers = {'x-api-key': spoonApiKey}
-                recipes = json.loads(r.get('https://api.spoonacular.com/recipes/findByIngredients?ingredients={}&ranking=2&ignorePantry=true'.format(Ingparam), headers=headers).text)
+                recipes = json.loads(r.get(
+                    'https://api.spoonacular.com/recipes/findByIngredients?ingredients={}&ranking=2&ignorePantry=true'.format(
+                        Ingparam), headers=headers).text)
                 output = [{
                     'recipe_Id': recipe["id"],
                     'image': recipe["image"],
@@ -61,12 +64,42 @@ class RecipesWithIng(APIView):
                     ids.append(str(recipe["recipe_Id"]))
                 idparam = ','.join(ids)
 
-                recipeData = json.loads(r.get('https://api.spoonacular.com/recipes/informationBulk?ids={}'.format(idparam), headers=headers).text)
+                recipeData = json.loads(
+                    r.get('https://api.spoonacular.com/recipes/informationBulk?ids={}'.format(idparam),
+                          headers=headers).text)
                 for i in range(len(recipeData)):
                     output[i]["url"] = recipeData[i]["sourceUrl"]
 
                 return Response(output)
 
+        if not searchQuery == "":
+            headers = {"x-api-key": spoonApiKey}
+            searchedRecipies = None
+            if fridge_id == -1:
+                searchedRecipies = json.loads(r.get(
+                    'https://api.spoonacular.com/recipes/complexSearch?query={}&addRecipeInformation=true&number=5'.format(
+                        searchQuery), headers=headers).text)
+            else:
+                fridge = Fridge.objects.get(id=fridge_id)
+                if fridge is not None:
+                    fridgeIngredents = []
+                    for ingredent in fridge.fridgeingredient_set.all():
+                        name = ingredent.ingredient.name
+                        fridgeIngredents.append(name)
+                    Ingparam = ",".join(fridgeIngredents)
+                    searchedRecipies = json.loads(r.get(
+                        'https://api.spoonacular.com/recipes/complexSearch?query={}&addRecipeInformation=true&number=5&includeIngredients={}'.format(
+                            searchQuery, Ingparam), headers=headers).text)
+            if not searchedRecipies is None:
+                output = [{
+                    'recipe_Id': recipe["id"],
+                    'image': recipe["image"],
+                    'name': recipe["title"],
+                    'url': recipe["sourceUrl"]
+
+                } for recipe in searchedRecipies["results"]]
+
+                return Response(output)
 
         return Response("No params")
 
@@ -105,7 +138,6 @@ class Users(APIView):
             return Response(serializer.data)
 
 
-
 class IngredientView(APIView):
     def get(self, request):
         ing_id = int(request.GET.get("ingId", -1))
@@ -116,12 +148,13 @@ class IngredientView(APIView):
         ingredients = Ingredient.objects.all()
         serializer = IngredientSerializer(ingredients, many=True)
         return Response(serializer.data)
-    
+
     def post(self, request):
         serializer = IngredientSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
+
 
 class Recipes(APIView):
     def get(self, request):
@@ -145,7 +178,14 @@ class Recipes(APIView):
             recipe.users.add(UserAccount.objects.get(id=userIndex))
             recipe.save()
             return Response(serializer.data)
-        
+    def delete(self, request):
+        data = request.data
+        recipe = Recipe.objects.get(recipeID=data["recipe_Id"])
+        if recipe:
+            recipe.delete()
+            return Response("Successfull")
+        return Response("Couldnt Find recipe")
+
 
 class Fridges(APIView):
     def get(self, request):
@@ -158,7 +198,7 @@ class Fridges(APIView):
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
-        
+
 
 class FridgeIngredientView(APIView):
     def get(self, request, fridge_id):
@@ -166,15 +206,13 @@ class FridgeIngredientView(APIView):
         serializer = FridgeIngredientSerializer(fridge_ingredients, many=True)
         return Response(serializer.data)
 
-
     def post(self, request, fridge_id):
         data = request.data
-        data['fridge'] = fridge_id  
+        data['fridge'] = fridge_id
         serializer = FridgeIngredientSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-
 
     def put(self, request, fridge_id):
         try:
@@ -187,7 +225,7 @@ class FridgeIngredientView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-    
+
     def delete(self, request, fridge_id):
         pk = int(request.GET.get("fIngId"))
         if pk:
@@ -196,6 +234,3 @@ class FridgeIngredientView(APIView):
 
             fridge_ingredient.delete()
             return Response("successful")
-
-
-
