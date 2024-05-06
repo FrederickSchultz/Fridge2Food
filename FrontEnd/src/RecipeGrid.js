@@ -14,7 +14,9 @@ const RecipeGrid = ({ recipes, onToggleFavorite }) => {
                 <td className="recipe-info">
                 </td>
                 <td className="recipe-image">
-                  <img src={recipe.image} alt={recipe.name} />
+                  <li>
+                    <a href={recipe.url}><img src={recipe.image} onClick={recipe.url} alt={recipe.name} /></a>
+                  </li>
                 </td>
               </tr>
               <tr>
