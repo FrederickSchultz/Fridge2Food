@@ -30,7 +30,7 @@ class RecipesWithIng(APIView):
             randomRecipes = json.load(file_)
             file_.close()
             output = [{
-                'recipe_Id': recipe["id"],
+                'recipeID': recipe["id"],
                 'image': recipe["image"],
                 'name': recipe["title"],
                 'url': recipe["sourceUrl"]
@@ -52,7 +52,7 @@ class RecipesWithIng(APIView):
                     'https://api.spoonacular.com/recipes/findByIngredients?ingredients={}&ranking=2&ignorePantry=true'.format(
                         Ingparam), headers=headers).text)
                 output = [{
-                    'recipe_Id': recipe["id"],
+                    'recipeID': recipe["id"],
                     'image': recipe["image"],
                     'name': recipe["title"],
                     'numMissing': recipe["missedIngredientCount"]
@@ -61,7 +61,7 @@ class RecipesWithIng(APIView):
                 ids = []
 
                 for recipe in output:
-                    ids.append(str(recipe["recipe_Id"]))
+                    ids.append(str(recipe["recipeID"]))
                 idparam = ','.join(ids)
 
                 recipeData = json.loads(
@@ -170,14 +170,20 @@ class Recipes(APIView):
     def post(self, request):
         data = request.data
         userIndex = data.pop("users")
-        serializer = RecipeSerializer(data=data, partial=True)
-        print(data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            recipe = Recipe.objects.get(id=serializer.data["id"])
+        try:
+
+            recipe = Recipe.objects.get(recipeID=data['recipeID'])
             recipe.users.add(UserAccount.objects.get(id=userIndex))
             recipe.save()
-            return Response(serializer.data)
+            serializer = RecipeSerializer(recipe)
+        except:
+            serializer = RecipeSerializer(data=data, partial=True)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                recipe = Recipe.objects.get(id=serializer.data['id'])
+                recipe.users.add(UserAccount.objects.get(id=userIndex))
+                recipe.save()
+        return Response(serializer.data)
     def delete(self, request):
         recipe_id = int(request.GET.get("recipeId", -1))
         userId = int(request.GET.get("userId", -1))
@@ -185,8 +191,8 @@ class Recipes(APIView):
         if recipe:
             recipe.users.remove(User.objects.get(id=userId))
             recipe.save()
-            return Response("Successfull")
-        return Response("Couldnt Find recipe")
+            return Response("Successful")
+        return Response("Couldn't Find recipe")
 
 
 class Fridges(APIView):

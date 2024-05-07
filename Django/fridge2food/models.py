@@ -35,6 +35,8 @@ class Ingredient(models.Model):
     name = models.CharField(max_length=100)  
 
 class Recipe(models.Model):
+
+
     recipeID = models.IntegerField(null=False, unique=True)
     url = models.URLField(max_length=200, default='ph.com')
     users = models.ManyToManyField(UserAccount, related_name='saved_recipes')

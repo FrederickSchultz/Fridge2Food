@@ -1,4 +1,6 @@
-from rest_framework import serializers
+from copy import copy
+
+from rest_framework import serializers, validators
 from .models import Ingredient, Recipe, Fridge, FridgeIngredient
 from djoser.serializers import UserCreateSerializer
 from django.contrib.auth import get_user_model
@@ -32,6 +34,13 @@ class RecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = '__all__'
+
+    def run_validators(self, value):
+        for validator in self.validators:
+            print("made it")
+            if isinstance(validator, validators.UniqueValidator):
+                self.validators.remove(validator)
+        super(RecipeSerializer, self).run_validators(value)
 
     def create(self, validated_data):
         recipe, created = Recipe.objects.get_or_create(**validated_data)

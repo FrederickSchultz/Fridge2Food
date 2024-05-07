@@ -146,34 +146,35 @@ class Homepage extends React.Component {
     if(state.auth.user){
       userId = state.auth.user.id
     }
-    this.setState(prevState => {
-      const updatedRecipes = [...prevState.recipes];
-      if (userId < 0) {
-        alert("Login to Favorite Recipes")
-        return { recipes: updatedRecipes };
-      }
-      if(updatedRecipes[index].favorited === true){
-        axios.delete(`${process.env.REACT_APP_API_URL}/Recipe?recipeId=${updatedRecipes[index].recipeID}&userId=${userId}`).then(res => {
-          console.log(res)
-        })
-        updatedRecipes.splice(index, 1)
-        return {recipes: updatedRecipes}
-      }
-      const savedRecipe = {
-        "recipeID":updatedRecipes[index].recipeID,
-        "url":updatedRecipes[index].url,
-        "users":userId,
-        "name":updatedRecipes[index].name,
-        "image":updatedRecipes[index].image,
-        "total_time":0
-      }
-      axios.post(`${process.env.REACT_APP_API_URL}/Recipe`, savedRecipe).then(res => {
-        console.log(res)
-      })
-
-      updatedRecipes[index].favorited = !updatedRecipes[index].favorited;
+    const updatedRecipes = this.state.recipes;
+    if (userId < 0) {
+      alert("Login to Favorite Recipes")
       return { recipes: updatedRecipes };
-    });
+    }
+    if(updatedRecipes[index].favorited === true){
+      const res = await axios.delete(`${process.env.REACT_APP_API_URL}/Recipe?recipeId=${updatedRecipes[index].recipeID}&userId=${userId}`)
+      console.log(res)
+      updatedRecipes.splice(index, 1)
+
+    }else {
+      const savedRecipe = {
+        "recipeID": updatedRecipes[index].recipeID,
+        "url": updatedRecipes[index].url,
+        "users": userId,
+        "name": updatedRecipes[index].name,
+        "image": updatedRecipes[index].image,
+        "total_time": 0
+      }
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/Recipe`, savedRecipe)
+      console.log(res)
+      updatedRecipes[index].favorited = !updatedRecipes[index].favorited;
+
+
+
+    }
+    this.setState(prevState => ({
+      recipes: updatedRecipes
+    }));
   }
 
   render() {

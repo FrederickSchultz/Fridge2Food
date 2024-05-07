@@ -23,6 +23,7 @@ const RecipeGrid = ({ recipes, onToggleFavorite }) => {
                 <td colSpan="2" className="recipe-favorite">
                   <button className={`favorite-button ${recipe.favorited ? 'favorited' : ''}`} onClick={() => onToggleFavorite(index)}>
                     <i className={`fas fa-star${recipe.favorited ? '' : '-empty'}`}></i>
+                    {recipe.favorited ? "Unfavorite" : "Favorite"}
                   </button>
                 </td>
               </tr>
