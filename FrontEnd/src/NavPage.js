@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { logout } from './actions/auth'; // Adjust the path as necessary
+import logo from './Logo.png'
 
 const NavPage = ({ logout, isAuthenticated }) => {
     const [redirect, setRedirect] = useState(false);
@@ -45,7 +46,7 @@ const NavPage = ({ logout, isAuthenticated }) => {
         <React.Fragment>
             <div className='banner'>
                 <Link className='logo' to='/'>
-                    <img src="logo.png" alt="Logo" style={{height: '50px'}}/>
+                    <img src = {logo} alt="Logo" style={{height: '50px'}}/>
                 </Link>
                 <h1 className="title"><Link to={"/?userid=" + userid} className={"title"}>Fridge2Food</Link></h1>
                 <nav className="ribbon">
