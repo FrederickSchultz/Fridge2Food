@@ -14,6 +14,10 @@ Ensure you have the following installed on your system:
   
 Install other dependencies as needed (Look at the error messages when running to see what to install).
 
+## Getting started
+
+Clone this repository
+
 ## Running the Django Backend
 
 1. Navigate to the Django directory:
